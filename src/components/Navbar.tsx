@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/popover"
 import { Link } from "react-router-dom"
 import { ModeToggle } from "./ModeToggle"
+import { authApi, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api"
+import { useAppDispatch } from "@/hooks/hook"
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -23,6 +25,15 @@ const navigationLinks = [
 ]
 
 export default function Navbar() {
+  const { data } = useUserInfoQuery(undefined)
+  console.log(data?.data?.email)
+  const [logout]=useLogoutMutation();
+  const dispatch=useAppDispatch();
+  const handleLogout=async()=>{
+    await logout(undefined)
+    dispatch(authApi.util.resetApiState())
+    
+  }
   return (
     <header className="border-b ">
       <div className="flex h-16 items-center justify-between gap-4 px-4 lg:px-16 py-4 lg:py-16">
@@ -31,7 +42,7 @@ export default function Navbar() {
           {/* Mobile menu trigger */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button 
+              <Button
                 className="group size-8 md:hidden"
                 variant="ghost"
                 size="icon"
@@ -69,8 +80,8 @@ export default function Navbar() {
                   {navigationLinks.map((link, index) => (
                     <NavigationMenuItem key={index} className="w-full">
                       <NavigationMenuLink asChild className="py-1.5">
-                      <Link to={link.href}> {link.label}
-                      </Link>    
+                        <Link to={link.href}> {link.label}
+                        </Link>
                       </NavigationMenuLink>
                     </NavigationMenuItem>
                   ))}
@@ -81,17 +92,17 @@ export default function Navbar() {
           {/* Main nav */}
           <div className="flex items-center gap-6">
             <Link to="/" className="text-primary hover:text-primary/90">
-              <Logo/>
+              <Logo />
             </Link>
             {/* Navigation menu */}
             <NavigationMenu className="max-md:hidden">
               <NavigationMenuList className="gap-2">
                 {navigationLinks.map((link, index) => (
                   <NavigationMenuItem key={index}>
-                    <NavigationMenuLink asChild  
-                    className="text-muted-foreground hover:text-primary py-1.5 font-medium">
+                    <NavigationMenuLink asChild
+                      className="text-muted-foreground hover:text-primary py-1.5 font-medium">
                       <Link to={link.href}>
-                      {link.label}
+                        {link.label}
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
@@ -102,13 +113,31 @@ export default function Navbar() {
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <ModeToggle/>
+          <ModeToggle />
           {/* <Button asChild variant="ghost" size="sm" className="text-sm">
             <Link to="login">Login</Link>
           </Button> */}
-          <Button asChild  className="text-sm">
-            <Link to="login">Login</Link>
-          </Button>
+          {
+            data?.data?.email && (
+              <Button 
+              onClick={handleLogout}
+              variant="outline" 
+              className="text-sm">
+                Logout
+              </Button>
+            )
+          }
+          {
+            !data?.data?.email && (
+              <Button asChild className="text-sm">
+                <Link to="login">Login</Link>
+              </Button>
+
+            )
+          }
+
+
+
         </div>
       </div>
     </header>
