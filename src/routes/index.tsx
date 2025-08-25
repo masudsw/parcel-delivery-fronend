@@ -7,6 +7,7 @@ import Register from "@/pages/Authentication/Register";
 import Unauthorized from "@/pages/Authentication/Unauthorized";
 import { Verify } from "@/pages/Authentication/Verify";
 import Homepage from "@/pages/home/Homepage";
+import CreateParcel from "@/pages/sender/CreateParcel";
 import TrackParcel from "@/pages/TrackParcel";
 import type { TUserType } from "@/types";
 import { withAuth } from "@/utils/withAuth";
@@ -44,9 +45,12 @@ export const router=createBrowserRouter([
         Component: withAuth(DashboardLayout, userType.SENDER as TUserType),
         path:"sender",
         children:[
+            {
+                Component:CreateParcel,
+                path:"create-parcel"
+            }
 
         ]
-
     },
     {
         Component:withAuth(DashboardLayout, userType.RECEIVER as TUserType),
