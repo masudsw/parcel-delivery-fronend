@@ -6,3 +6,5 @@ export interface IResponse<T>{
     message:string;
     data:T, 
 }
+
+export type TUserType="ADMIN"|"SENDER"|"RECEIVER";
