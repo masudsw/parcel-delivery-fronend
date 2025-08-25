@@ -14,29 +14,19 @@ import {
 } from "@/components/ui/sidebar"
 import Logo from "@/assets/icons/logo"
 
-// This is sample data.
-const data = {
- 
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "#",
-      items: [
-        {
-          title: "Send Parcel",
-          url: "/admin/create-parcel",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-   
-  ],
-}
+import { getSidebarItems } from "@/utils/getSidebarItems"
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api"
+import { Link } from "react-router-dom"
+
+
+
+
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const {data:userData}=useUserInfoQuery(undefined)
+  const data = {
+  navMain: getSidebarItems(userData?.data?.userType)
+}
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -45,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
+        {data.navMain && data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -53,7 +43,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild >
-                      <a href={item.url}>{item.title}</a>
+                      <Link to={item.url}>{item.title}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
