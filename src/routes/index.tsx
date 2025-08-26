@@ -11,8 +11,7 @@ import TrackParcel from "@/pages/TrackParcel";
 import type { TUserType } from "@/types";
 import { withAuth } from "@/utils/withAuth";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import UndateParcel from "@/pages/sender/UndateParcel";
-import CancelParcel from "@/pages/sender/CancelParcel";
+
 import { generateRoutes } from "@/utils/generateRoutes";
 import { senderSidebarItems } from "./senderSidebarItems";
 import { adminSidebarItems } from "./adminSidebarItems";
@@ -42,7 +41,7 @@ export const router=createBrowserRouter([
         Component: withAuth(DashboardLayout,userTypes.ADMIN as TUserType) ,
         path:"/admin",
         children:[
-            {index:true, element:<Navigate to="/admin/all-parcel"/>},
+            {index:true, element:<Navigate to="/admin/all-parcels"/>},
             ...generateRoutes(adminSidebarItems)  
         ]
     },
@@ -80,6 +79,11 @@ export const router=createBrowserRouter([
         Component:Verify,
         path:"/verify"
     },
+    {
+        Component:DashboardLayout,
+        path:"/dashboard"
+
+    }
    
 
 ]

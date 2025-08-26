@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -30,7 +30,7 @@ export function LoginForm({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [login] = useLoginMutation()
-  // const navigate = useNavigate()
+ 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -40,6 +40,7 @@ export function LoginForm({
       userType: "SENDER"
     },
   })
+  const navigate=useNavigate()
 
   async function onSubmit(data: z.infer<typeof loginSchema>) {
     const userInfo = {
@@ -51,6 +52,7 @@ export function LoginForm({
       const res=await login(userInfo).unwrap();
       console.log(res);
       toast.success("Login successfully")
+       navigate("/dashboard")
     } catch (error: any) {
       toast.error(error.data.message || "Login failed");
     }

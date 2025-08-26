@@ -1,6 +1,7 @@
 import MarkPick from "@/pages/admin/MarkPick";
 import MarkTransit from "@/pages/admin/MarkTransit";
 import ViewParcels from "@/pages/admin/viewParcels";
+
 import type { ISidebarItem } from "@/types";
 
 export const adminSidebarItems:ISidebarItem[]=[
@@ -20,8 +21,8 @@ export const adminSidebarItems:ISidebarItem[]=[
         },
         {
             title:"All Parcels",
-            url:"admin/all-parcel",
-            component:ViewParcels
+            url:"/admin/all-parcels",
+            component: ViewParcels
         }
         
       ],

@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useCreateParcelMutation } from "@/redux/features/parcel/parcel.api";
 
 // Define the form schema
 const parcelSchema = z.object({
@@ -70,16 +71,17 @@ export function CreateParcel({
       weight: 0,
     },
   });
-
-  async function onSubmit(data: z.infer<typeof parcelSchema>) {
+ const [creatNewParcel]=useCreateParcelMutation();
+  async function onSubmit (data: z.infer<typeof parcelSchema>) {
+   
     try {
-      // Here you would call your API mutation
-      console.log("Parcel data:", data);
+      
+      await creatNewParcel(data);
       toast.success("Parcel created successfully!");
       form.reset();
     } catch (error: any) {
       console.error("Error creating parcel:", error);
-      toast.error(error.message || "Failed to create parcel");
+      toast.error(error.data.message || "Failed to create parcel");
     }
   }
 
