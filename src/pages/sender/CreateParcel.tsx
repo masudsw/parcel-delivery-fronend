@@ -39,7 +39,7 @@ const parcelSchema = z.object({
     width: z.number().min(0.1, "Width must be greater than 0"),
     length: z.number().min(0.1, "Length must be greater than 0"),
   }),
-  description: z.string().min(5, "Description must be at least 5 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
   weight: z.number().min(0.1, "Weight must be greater than 0"),
 });
 
@@ -71,266 +71,253 @@ export function CreateParcel({
       weight: 0,
     },
   });
- const [creatNewParcel]=useCreateParcelMutation();
-  async function onSubmit (data: z.infer<typeof parcelSchema>) {
-   
+  const [creatNewParcel] = useCreateParcelMutation();
+  async function onSubmit(data: z.infer<typeof parcelSchema>) {
+
     try {
-      
+
       await creatNewParcel(data);
       toast.success("Parcel created successfully!");
       form.reset();
     } catch (error: any) {
       console.error("Error creating parcel:", error);
-      toast.error(error.data.message || "Failed to create parcel");
+      // Check if it's a validation error or API error
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Failed to create parcel");
+      }
     }
   }
 
-  return (
-    <div className={cn("flex flex-col gap-6 max-w-2xl mx-auto p-6", className)} {...props}>
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Create New Parcel</h1>
-        <p className="text-muted-foreground">
-          Fill in the details to create a new parcel shipment
-        </p>
-      </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Receiver Information */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Receiver Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="receiverName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Receiver Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter receiver's full name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+return (
+  <div className={cn("flex flex-col gap-6 max-w-2xl mx-auto p-6", className)} {...props}>
+    <div className="flex flex-col items-center gap-2 text-center">
+      <h1 className="text-2xl font-bold">Create New Parcel</h1>
+      <p className="text-muted-foreground">
+        Fill in the details to create a new parcel shipment
+      </p>
+    </div>
 
-              <FormField
-                control={form.control}
-                name="receiverPhone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Receiver Phone</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter receiver's phone number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Origin Address */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Origin Address</h2>
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="originAddress.address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Street Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter street address" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="originAddress.district"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>District</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter district" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="originAddress.country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter country" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Destination Address */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Destination Address</h2>
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="destinationAddress.address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Street Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter street address" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="destinationAddress.district"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>District</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter district" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="destinationAddress.country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter country" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Dimensions */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Parcel Dimensions (cm)</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="dimentions.height"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Height</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.1"
-                        placeholder="Height" 
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="dimentions.width"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Width</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.1"
-                        placeholder="Width" 
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="dimentions.length"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Length</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.1"
-                        placeholder="Length" 
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Weight and Description */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Weight (kg)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.1"
-                        placeholder="Weight in kg" 
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Receiver Information */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Receiver Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="receiverName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Receiver Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter receiver's full name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
-              name="description"
+              name="receiverPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Receiver Phone</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Describe the contents of the parcel" 
-                      className="min-h-32"
-                      {...field} 
+                    <Input placeholder="Enter receiver's phone number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* Origin Address */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Origin Address</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <FormField
+              control={form.control}
+              name="originAddress.address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter street address" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="originAddress.district"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>District</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter district" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="originAddress.country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter country" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Destination Address */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Destination Address</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <FormField
+              control={form.control}
+              name="destinationAddress.address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter street address" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="destinationAddress.district"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>District</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter district" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="destinationAddress.country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter country" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Dimensions */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Parcel Dimensions (cm)</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="dimentions.height"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      placeholder="Height"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dimentions.width"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Width</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      placeholder="Width"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dimentions.length"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Length</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      placeholder="Length"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* Weight and Description */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight (kg)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      placeholder="Weight in kg"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -339,11 +326,30 @@ export function CreateParcel({
             />
           </div>
 
-          <Button type="submit" className="w-full">
-            Create Parcel
-          </Button>
-        </form>
-      </Form>
-    </div>
-  );
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Describe the contents of the parcel"
+                    className="min-h-32"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Button type="submit" className="w-full">
+          Create Parcel
+        </Button>
+      </form>
+    </Form>
+  </div>
+);
 }

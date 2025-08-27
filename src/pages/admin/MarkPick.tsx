@@ -16,9 +16,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import z from "zod";
-import type { IParcel } from "@/types";
+import type { ISenderParcel } from "@/types/parcel.types";
 
-// Define the form schema for pickup
+// Define the form schema for pickup - matches your Postman body
 const pickParcelSchema = z.object({
   receiverName: z.string().min(2, "Receiver name must be at least 2 characters"),
   receiverPhone: z.string()
@@ -34,21 +34,16 @@ const pickParcelSchema = z.object({
   weight: z.number().min(0.1, "Weight must be greater than 0"),
   notes: z.string().optional(),
   shippingFee: z.number().min(0, "Shipping fee cannot be negative"),
-  dimentions: z.object({
-    length: z.number().min(0.1, "Length must be greater than 0"),
-    width: z.number().min(0.1, "Width must be greater than 0"),
-    height: z.number().min(0.1, "Height must be greater than 0"),
-  }).optional(),
 });
 
 export default function MarkPick() {
   const { data, isLoading, error } = useGetAllParcelsQuery({
     currentStatus: currentStatus.REQUESTED
   });
+  
   const [pickParcel] = usePickParcelMutation();
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedParcel, setSelectedParcel] = useState<IParcel | null>(null);
+  const [selectedParcel, setSelectedParcel] = useState<ISenderParcel | null>(null);
 
   // Initialize form with useForm
   const form = useForm<z.infer<typeof pickParcelSchema>>({
@@ -65,16 +60,11 @@ export default function MarkPick() {
       weight: 0,
       notes: "",
       shippingFee: 0,
-      dimentions: {
-        length: 0,
-        width: 0,
-        height: 0
-      }
     }
   });
 
   // Open modal with parcel data and reset form
-  const handlePickClick = (parcel: IParcel) => {
+  const handlePickClick = (parcel: ISenderParcel) => {
     setSelectedParcel(parcel);
 
     // Reset form with parcel data (admin can update sender-provided info)
@@ -82,11 +72,11 @@ export default function MarkPick() {
       receiverName: parcel.receiverName,
       receiverPhone: parcel.receiverPhone,
       destinationAddress: parcel.destinationAddress,
-      weight: parcel.weight,
-      dimentions: parcel.dimentions,
-      estimatedDeliveryDate: parcel.estimatedDeliveryDate ? new Date(parcel.estimatedDeliveryDate).toISOString().slice(0, 16) : "",
-      notes: "",
-      shippingFee: parcel.shippingFee || 0
+      weight: parcel.weight || 0,
+      // Admin will fill these new fields:
+      estimatedDeliveryDate: "", // ← Empty (admin provides)
+      shippingFee: 0,            // ← Default (admin provides)
+      notes: ""                  // ← Empty (admin provides)
     });
 
     setIsDialogOpen(true);
@@ -95,42 +85,42 @@ export default function MarkPick() {
   // Handle confirm pick
   const onSubmit = async (values: z.infer<typeof pickParcelSchema>) => {
     if (!selectedParcel) return;
-    const pickData = {
-        receiverName: values.receiverName,
-        receiverPhone: values.receiverPhone,
-        destinationAddress: {
-          address: values.destinationAddress.address,
-          district: values.destinationAddress.district,
-          country: values.destinationAddress.country
-        },
-        dimentions: {
-          height: values.dimentions?.height,
-          width: values.dimentions?.width,
-          length: values.dimentions?.length
-        },
-
-        estimatedDeliveryDate: new Date(values.estimatedDeliveryDate).toISOString(),
-        weight: values.weight,
-        notes: values?.notes,
-        shippingFee: values.shippingFee,
-
-      };
-       const mutationPayload={
-          trackingId:selectedParcel.trackingId,
-          ...pickData
-        }
 
     try {
-      
-      await pickParcel(
-        // trackingNumber: selectedParcel.trackingId || selectedParcel._id as string,
-       mutationPayload
-      ).unwrap();
+      // Get the tracking ID from the selected parcel
+      const trackingId = selectedParcel.trackingId;
+      if (!trackingId) {
+        toast.error("No tracking ID found for this parcel");
+        return;
+      }
+
+      // Prepare the data exactly as your Postman example
+      const pickupData = {
+        receiverName: values.receiverName,
+        receiverPhone: values.receiverPhone,
+        destinationAddress: values.destinationAddress,
+        estimatedDeliveryDate: new Date(values.estimatedDeliveryDate).toISOString(),
+        weight: values.weight,
+        notes: values.notes,
+        shippingFee: values.shippingFee
+      };
+
+      console.log("Sending to API:", {
+        trackingId,
+        data: pickupData
+      });
+
+      // Call the API with trackingId and data separately
+      await pickParcel({
+        trackingId: trackingId,
+        data:pickupData
+      }).unwrap();
 
       toast.success("Parcel picked successfully!");
       setIsDialogOpen(false);
       form.reset();
     } catch (error: any) {
+      console.error("API Error:", error);
       toast.error(error.data?.message || "Failed to pick parcel");
     }
   };
@@ -184,7 +174,7 @@ export default function MarkPick() {
 
       {/* Pick Parcel Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Confirm Parcel Pickup</DialogTitle>
             <DialogDescription>
@@ -262,69 +252,6 @@ export default function MarkPick() {
                       <FormLabel>Country *</FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="Country name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Dimensions */}
-              <div className="grid grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="dimentions.length"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Length (cm)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          placeholder="Length"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="dimentions.width"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Width (cm)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          placeholder="Width"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="dimentions.height"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Height (cm)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          placeholder="Height"
-                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -1,46 +1,15 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-
 import { currentStatus } from "@/constants/parcelStatus";
 import { useGetAllParcelsQuery, useMarkInTransitMutation } from "@/redux/features/parcel/parcel.api";
 import { toast } from "sonner";
 import { useEffect } from "react";
-
-import z from "zod";
 import type { IParcel } from "@/types";
 
-// Define the form schema for pickup
 
-
-export default function MarkTransit() {
-  const { data, isLoading, error } = useGetAllParcelsQuery({
+export default async function MarkTransit() {
+  const { data, isLoading, error } = await useGetAllParcelsQuery({
     currentStatus: currentStatus.PICKED
   });
-  const [transitParcel] = useMarkInTransitMutation();
-  const [selectedParcel, setSelectedParcel] = useState<IParcel | null>(null);
-  // Initialize form with useForm
- 
-  // Open modal with parcel data and reset form
-  const handleTransitClick = (parcel: IParcel) => {
-    setSelectedParcel(parcel);
-  };
-
-  // Handle confirm pick
-  const onSubmit = async (values: z.infer<typeof pickParcelSchema>) => {
-    if (!selectedParcel) return;
-    try {
-      await transitParcel(
-        // trackingNumber: selectedParcel.trackingId || selectedParcel._id as string,
-       selectedParcel.trackingId
-      ).unwrap();
-
-      toast.success("Parcel picked successfully!");
-      
-    } catch (error: any) {
-      toast.error(error.data?.message || "Failed to pick parcel");
-    }
-  };
-
   useEffect(() => {
     if (isLoading) toast.loading("Loading parcels...");
   }, [isLoading]);
@@ -48,6 +17,21 @@ export default function MarkTransit() {
   useEffect(() => {
     if (error) toast.error("Error loading parcel data");
   }, [error]);
+  const [transitParcel] = useMarkInTransitMutation();
+ 
+  const handleTransitClick = async (parcel: IParcel) => {
+    if (!parcel) return;
+    try {
+      await transitParcel(
+        // trackingNumber: selectedParcel.trackingId || selectedParcel._id as string,
+        parcel.trackingId
+      ).unwrap();
+      toast.success("Parcel send for trasportation!");
+    } catch (error: any) {
+      toast.error(error.data?.message || "Failed to send transportation");
+    }
+  };
+
 
   return (
     <div className="container mx-auto p-6">
@@ -74,7 +58,7 @@ export default function MarkTransit() {
                 {parcel.destinationAddress.address}, {parcel.destinationAddress.district}
               </td>
               <td className="border border-gray-300 p-2">
-                <Button onClick={() => handleTransitClick(parcel)}>Pick</Button>
+                <Button onClick={() => handleTransitClick(parcel)}>Send to trasportation</Button>
               </td>
             </tr>
           ))}
@@ -88,7 +72,7 @@ export default function MarkTransit() {
       )}
 
       {/* Pick Parcel Dialog */}
-      
+
     </div>
   );
 }

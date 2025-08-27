@@ -25,27 +25,55 @@ export interface IAddressFormat{
     district:string,
     country:string
 }
-export interface IParcel{
-    _id?:string;
-    trackingId?:string,
-    sender?:string;
-    receiverName:string;
-    receiverPhone:string;
-    originAddress:IAddressFormat;
-    destinationAddress:IAddressFormat;
-    description:string,
-    shippingFee?:number,
-    estimatedDeliveryDate?:Date,
-    currentStatus?:TCurrentStatus,
-    weight?:number;
-    dimentions:IDimentions;
-    statusLogs?:IStatusLog[]
+export interface IParcelBase {
+  _id?: string;
+  trackingId?: string;
+  sender?: string;
+  receiverName: string;
+  receiverPhone: string;
+  originAddress: IAddressFormat;
+  destinationAddress: IAddressFormat;
+  description: string;
+  weight?: number;
+  dimentions?: IDimentions;
+  currentStatus?: TCurrentStatus;
+  statusLogs?: IStatusLog[];
+}
+export interface IAdminParcel extends IParcelBase {
+  shippingFee: number;
+  estimatedDeliveryDate: Date;
+  notes?: string;
+}
+
+export interface ISenderParcel {
+  // Only the fields sender is allowed to provide
+  receiverName: string;
+  receiverPhone: string;
+  originAddress: IAddressFormat;
+  destinationAddress: IAddressFormat;
+  description: string;
+  weight?: number;
+  dimentions?: IDimentions;
+  // NO backend-only fields like statusLogs, currentStatus, etc.
 }
 
 export interface IStatusUpdateResponse {
   success: boolean;
   message: string;
-  data?: IParcel;
+  data?: IParcelBase;
+}
+export interface IPickupData {
+  receiverName: string;
+  receiverPhone: string;
+  destinationAddress: {
+    address: string;
+    district: string;
+    country: string;
+  };
+  estimatedDeliveryDate: string; // ISO string
+  weight: number;
+  notes?: string;
+  shippingFee: number;
 }
 
 export interface IGetAllParcelsParams {
