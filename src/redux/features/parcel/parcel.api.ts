@@ -1,7 +1,7 @@
 import { baseApi } from "@/redux/baseApi";
 import type { IResponse } from "@/types";
-import type { IAdminParcel, IGetAllParcelsParams, IParcelBase, IPickupData, ISenderParcel, IStatusLog, IStatusUpdateResponse } from "@/types/parcel.types";
-import type { string } from "zod";
+import type {  IGetAllParcelsParams, IParcelBase, IPickupData, ISenderParcel, IStatusLog, IStatusUpdateResponse } from "@/types/parcel.types";
+
 
 
 
