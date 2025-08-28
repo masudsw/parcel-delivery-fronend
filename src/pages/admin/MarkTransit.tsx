@@ -3,13 +3,18 @@ import { currentStatus } from "@/constants/parcelStatus";
 import { useGetAllParcelsQuery, useMarkInTransitMutation } from "@/redux/features/parcel/parcel.api";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import type { IParcel } from "@/types";
+import type { IParcelBase } from "@/types";
 
 
-export default async function MarkTransit() {
-  const { data, isLoading, error } = await useGetAllParcelsQuery({
+
+export default function MarkTransit() {
+  // Remove async/await from hooks - they're synchronous
+  const { data, isLoading, error } = useGetAllParcelsQuery({
     currentStatus: currentStatus.PICKED
   });
+  
+  const [transitParcel] = useMarkInTransitMutation();
+
   useEffect(() => {
     if (isLoading) toast.loading("Loading parcels...");
   }, [isLoading]);
@@ -17,21 +22,21 @@ export default async function MarkTransit() {
   useEffect(() => {
     if (error) toast.error("Error loading parcel data");
   }, [error]);
-  const [transitParcel] = useMarkInTransitMutation();
  
-  const handleTransitClick = async (parcel: IParcel) => {
-    if (!parcel) return;
+  const handleTransitClick = async (parcel: IParcelBase) => {
+    if (!parcel.trackingId) {
+      toast.error("No tracking ID found");
+      return;
+    }
+    
     try {
-      await transitParcel(
-        // trackingNumber: selectedParcel.trackingId || selectedParcel._id as string,
-        parcel.trackingId
-      ).unwrap();
-      toast.success("Parcel send for trasportation!");
+      // Assuming your API expects just the tracking ID
+      await transitParcel(parcel.trackingId).unwrap();
+      toast.success("Parcel sent for transportation!");
     } catch (error: any) {
-      toast.error(error.data?.message || "Failed to send transportation");
+      toast.error(error.data?.message || "Failed to send for transportation");
     }
   };
-
 
   return (
     <div className="container mx-auto p-6">
@@ -58,7 +63,9 @@ export default async function MarkTransit() {
                 {parcel.destinationAddress.address}, {parcel.destinationAddress.district}
               </td>
               <td className="border border-gray-300 p-2">
-                <Button onClick={() => handleTransitClick(parcel)}>Send to trasportation</Button>
+                <Button onClick={() => handleTransitClick(parcel)}>
+                  Send to transportation
+                </Button>
               </td>
             </tr>
           ))}
@@ -67,12 +74,9 @@ export default async function MarkTransit() {
 
       {data?.data?.length === 0 && (
         <div className="text-center py-8 text-gray-500">
-          No requested parcels found.
+          No picked parcels found waiting for transit.
         </div>
       )}
-
-      {/* Pick Parcel Dialog */}
-
     </div>
   );
 }

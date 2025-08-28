@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 
 export type {ISendOtp,IVerifyOtp, IUser, ILogin, ILoginResponse,IRegister} from "./auth.types"
-export type {IAdminParcel, ISenderParcel,IParcelBase} from "./parcel.types"
+export type {IAdminParcel, ISenderParcel,IParcelBase,IStatusLog} from "./parcel.types"
 
 export interface IResponse<T>{
     statusCode:number;

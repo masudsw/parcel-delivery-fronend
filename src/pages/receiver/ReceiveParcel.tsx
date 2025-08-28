@@ -8,15 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { currentStatus } from "@/constants/parcelStatus";
-import { useGetAllParcelsQuery, useMarkInTransitMutation, usePickParcelMutation } from "@/redux/features/parcel/parcel.api";
+
+import {  useGetParcelToReceiveQuery, useMarkInTransitMutation } from "@/redux/features/parcel/parcel.api";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import z from "zod";
-import type { IParcel } from "@/types";
+import type { IParcelBase } from "@/types";
+
 
 // Define the form schema for pickup
 const receiveParcelSchema = z.object({
@@ -27,13 +28,13 @@ const receiveParcelSchema = z.object({
 });
 
 export default function ReceiveParcel() {
-  const { data, isLoading, error } = useGetAllParcelsQuery({
-    currentStatus: currentStatus.IN_TRANSIT
-  });
+  const { data, isLoading, error } = useGetParcelToReceiveQuery(null);
+  console.log("inside receiver parcel",data)
+  
   const [receiveParcel] = useMarkInTransitMutation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedParcel, setSelectedParcel] = useState<IParcel | null>(null);
+  const [selectedParcel, setSelectedParcel] = useState<IParcelBase | null>(null);
 
   // Initialize form with useForm
   const form = useForm<z.infer<typeof receiveParcelSchema>>({
@@ -45,7 +46,7 @@ export default function ReceiveParcel() {
   });
 
   // Open modal with parcel data and reset form
-  const handleReceiveParcelClick = (parcel: IParcel) => {
+  const handleReceiveParcelClick = (parcel: IParcelBase) => {
     setSelectedParcel(parcel);
 
     // Reset form with parcel data (admin can update sender-provided info)
@@ -60,16 +61,16 @@ export default function ReceiveParcel() {
   const onSubmit = async (values: z.infer<typeof receiveParcelSchema>) => {
     if (!selectedParcel) return;
        const mutationPayload={
-          trackingId:selectedParcel.trackingId,
+          trackingId:selectedParcel.trackingId as string,
           receiverPhone:values.receiverPhone
         }
     try {
       await receiveParcel(
         // trackingNumber: selectedParcel.trackingId || selectedParcel._id as string,
-       mutationPayload
+      mutationPayload
       ).unwrap();
 
-      toast.success("Parcel picked successfully!");
+      toast.success("Parcel received successfully!");
       setIsDialogOpen(false);
       form.reset();
     } catch (error: any) {
@@ -96,6 +97,7 @@ export default function ReceiveParcel() {
             <th className="border border-gray-300 p-2 text-left">Receiver</th>
             <th className="border border-gray-300 p-2 text-left">Phone</th>
             <th className="border border-gray-300 p-2 text-left">Weight</th>
+            <th className="border border-gray-300 p-2 text-left">Current Status</th>
             <th className="border border-gray-300 p-2 text-left">Destination</th>
             <th className="border border-gray-300 p-2 text-left">Action</th>
           </tr>
@@ -107,6 +109,7 @@ export default function ReceiveParcel() {
               <td className="border border-gray-300 p-2">{parcel.receiverName}</td>
               <td className="border border-gray-300 p-2">***********</td>
               <td className="border border-gray-300 p-2">{parcel.weight} kg</td>
+              <td className="border border-gray-300 p-2">{parcel.currentStatus}</td>
               <td className="border border-gray-300 p-2">
                 {parcel.destinationAddress.address}, {parcel.destinationAddress.district}
               </td>

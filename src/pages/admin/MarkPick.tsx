@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import z from "zod";
-import type { ISenderParcel } from "@/types/parcel.types";
+import type { IParcelBase } from "@/types/parcel.types";
 
 // Define the form schema for pickup - matches your Postman body
 const pickParcelSchema = z.object({
@@ -43,7 +43,7 @@ export default function MarkPick() {
   
   const [pickParcel] = usePickParcelMutation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedParcel, setSelectedParcel] = useState<ISenderParcel | null>(null);
+  const [selectedParcel, setSelectedParcel] = useState<IParcelBase | null>(null);
 
   // Initialize form with useForm
   const form = useForm<z.infer<typeof pickParcelSchema>>({
@@ -64,7 +64,7 @@ export default function MarkPick() {
   });
 
   // Open modal with parcel data and reset form
-  const handlePickClick = (parcel: ISenderParcel) => {
+  const handlePickClick = (parcel: IParcelBase) => {
     setSelectedParcel(parcel);
 
     // Reset form with parcel data (admin can update sender-provided info)
