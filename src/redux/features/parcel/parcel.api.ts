@@ -1,6 +1,6 @@
 import { baseApi } from "@/redux/baseApi";
 import type { IResponse } from "@/types";
-import type {  IGetAllParcelsParams, IParcelBase, IPickupData, ISenderParcel, IStatusLog, IStatusUpdateResponse } from "@/types/parcel.types";
+import type {   IGetAllParcelsParams, IGetAllParcelsResponse, IPaginationMeta, IParcelBase, IPickupData, ISenderParcel, IStatusLog, IStatusUpdateResponse } from "@/types/parcel.types";
 
 
 
@@ -58,7 +58,7 @@ export const parcelApi = baseApi.injectEndpoints({
         }),
 
         // Get all parcels with filtering and pagination
-        getAllParcels: builder.query<IResponse<IParcelBase[]>, IGetAllParcelsParams>({
+        getAllParcels: builder.query<IGetAllParcelsResponse, IGetAllParcelsParams>({
             query: (params) => ({
                 url: '/parcel',
                 method: 'GET',

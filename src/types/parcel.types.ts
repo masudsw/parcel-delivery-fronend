@@ -1,5 +1,17 @@
 import type { TCurrentStatus } from "@/constants/parcelStatus";
-
+export interface IPaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+}
+export interface IGetAllParcelsResponse {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  meta: IPaginationMeta;
+  data: IParcelBase[];
+}
 
 export interface IAddress {
   address: string;
@@ -76,12 +88,15 @@ export interface IPickupData {
   shippingFee: number;
 }
 
+
+
 export interface IGetAllParcelsParams {
+  searchTerm?: string;       
   currentStatus?: TCurrentStatus;
-  sort?: string;
+  sort?: string;             
   limit?: number;
   page?: number;
   minCost?: number;
   maxCost?: number;
-  fields?: string;
+  fields?: string;           // backend expects string like "receiverName,trackingId"
 }
