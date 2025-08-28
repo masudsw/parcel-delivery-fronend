@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import {  useGetParcelToReceiveQuery, useMarkInTransitMutation } from "@/redux/features/parcel/parcel.api";
+import {  useGetParcelToReceiveQuery, useMarkReceivedMutation } from "@/redux/features/parcel/parcel.api";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ export default function ReceiveParcel() {
   const { data, isLoading, error } = useGetParcelToReceiveQuery(null);
   console.log("inside receiver parcel",data)
   
-  const [receiveParcel] = useMarkInTransitMutation();
+  const [receiveParcel] = useMarkReceivedMutation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedParcel, setSelectedParcel] = useState<IParcelBase | null>(null);
@@ -60,15 +60,14 @@ export default function ReceiveParcel() {
   // Handle confirm pick
   const onSubmit = async (values: z.infer<typeof receiveParcelSchema>) => {
     if (!selectedParcel) return;
-       const mutationPayload={
-          trackingId:selectedParcel.trackingId as string,
-          receiverPhone:values.receiverPhone
-        }
+      
     try {
       await receiveParcel(
         // trackingNumber: selectedParcel.trackingId || selectedParcel._id as string,
-      mutationPayload
-      ).unwrap();
+      // mutationPayload
+      {trackingId:selectedParcel.trackingId as string, receiverPhone:values.receiverPhone as string}
+      
+      ).unwrap()
 
       toast.success("Parcel received successfully!");
       setIsDialogOpen(false);

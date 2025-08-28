@@ -43,7 +43,7 @@ export const parcelApi = baseApi.injectEndpoints({
             query: ({ trackingId, receiverPhone }) => ({
                 url: `/parcel/${trackingId}/status/mark-received`,
                 method: "PATCH",
-                data: { receiverPhone }
+                body: { receiverPhone }
             }),
             invalidatesTags: ["PARCEL"],
         }),
@@ -66,7 +66,7 @@ export const parcelApi = baseApi.injectEndpoints({
             }),
             providesTags: ["PARCEL"],
         }),
-        getParcelToReceive: builder.query<IResponse<IParcelBase>, null>({
+        getParcelToReceive: builder.query<IResponse<IParcelBase[]>, null>({
             query: () => ({
                 url: '/parcel/ready-to-receive',
                 method: "GET",
