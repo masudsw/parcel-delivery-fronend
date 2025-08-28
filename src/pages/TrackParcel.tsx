@@ -57,10 +57,10 @@ export default function TrackParcel({
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex items-center gap-4 mx-auto">
           <FormField
             control={form.control}
-            name="trackingId"
+            name="trackingId" 
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tracking ID</FormLabel>
@@ -68,6 +68,7 @@ export default function TrackParcel({
                   <Input
                     type="text"
                     placeholder="Enter your tracking ID"
+                    className='w-xl'
                     {...field}
                   />
                 </FormControl>
@@ -75,7 +76,7 @@ export default function TrackParcel({
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full mt-2" disabled={isLoading}>
+          <Button type="submit" className="w-2xs mt-2" disabled={isLoading}>
             {isLoading ? "Loading..." : "Track Parcel"}
           </Button>
         </form>
@@ -87,7 +88,7 @@ export default function TrackParcel({
           <Card className="max-w-xl mx-auto p-4">
             <h2 className="text-xl font-semibold mb-4">Parcel Delivery Status</h2>
             <CardContent>
-              <div className="relative border-l-2 border-gray-300">
+              <div className="relative border-l-4 border-red-500">
                 {statusLogs.map((log, i) => (
                   <div key={i} className="ml-4 mb-6">
                     <div className="flex items-center gap-2">
@@ -103,6 +104,9 @@ export default function TrackParcel({
                     )}
                     <p className="text-xs text-gray-400">
                       {new Date(log.timestamp).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {(log.notes)}
                     </p>
                   </div>
                 ))}
