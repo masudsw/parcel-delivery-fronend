@@ -26,6 +26,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/comp
 import { useEffect, useState } from "react"
 import { useSendOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/auth.api"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 
 const formSchema = z.object({
@@ -118,12 +119,10 @@ export function Verify() {
 
     }
     useEffect(() => {
-        if (!email) {
-            navagate("/");
-        }
-        if (confirmed) {
+        if (!email|| !confirmed) {
             return;
         }
+       
         const timerId = setInterval(
             () => {
                 setTimer((prev) => (prev > 0 ? prev - 1 : 0))
@@ -135,7 +134,7 @@ export function Verify() {
         <div className="flex items-center justify-center min-h-screen p-4">
             {
                 confirmed ? (
-                    <Card className="w-[200px]">
+                    <Card className="w-[400px]">
                         <CardHeader>
                             <CardTitle>Check you email to get the OPT</CardTitle>
                             <CardDescription>
@@ -169,8 +168,21 @@ export function Verify() {
                                                         </InputOTPGroup>
                                                     </InputOTP>
                                                 </FormControl>
-                                                <FormDescription className="sr-only">
-                                                    This is your public display name.
+                                                <FormDescription className="">
+                                                    
+                                                    <Button
+                                                    onClick={handleSendOtp}
+                                                    type="button"
+                                                    variant="link"
+                                                    disabled={timer!==0}
+                                                    className={cn("p-0 m-0",{
+                                                        "cursor-pointer":timer===0,
+                                                        "text-gray-500":timer!==0,
+                                                    })}
+                                                    >
+                                                        Reset OTP:{" "}
+                                                    </Button>{" "}
+                                                    {timer}
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
@@ -185,7 +197,7 @@ export function Verify() {
                     </Card>
 
                 ) : (
-                    <Card className="w-full max-w-sm">
+                    <Card className="w-[400px]">
                         <CardHeader>
                             <CardTitle>Verifying your email address</CardTitle>
                             <CardDescription>
@@ -197,7 +209,8 @@ export function Verify() {
 
                         </CardContent>
                         <CardFooter className="flex-col gap-2">
-                            <Button onClick={handleSendOtp}>Cofirm</Button>
+                            <Button onClick={handleSendOtp}
+                            >Cofirm</Button>
                         </CardFooter>
                     </Card>
 
