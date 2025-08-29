@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,8 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-import {  useGetParcelToReceiveQuery, useMarkReceivedMutation } from "@/redux/features/parcel/parcel.api";
+import { useGetParcelToReceiveQuery, useReceiveParcelMutation } from "@/redux/features/parcel/parcel.api";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -17,7 +16,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import z from "zod";
 import type { IParcelBase } from "@/types";
-
 
 // Define the form schema for pickup
 const receiveParcelSchema = z.object({
@@ -29,132 +27,152 @@ const receiveParcelSchema = z.object({
 
 export default function ReceiveParcel() {
   const { data, isLoading, error } = useGetParcelToReceiveQuery(null);
-  console.log("inside receiver parcel",data)
-  
-  const [receiveParcel] = useMarkReceivedMutation();
+  const [receiveParcel, { isLoading: isReceiving }] = useReceiveParcelMutation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedParcel, setSelectedParcel] = useState<IParcelBase | null>(null);
+  const toastIdRef = useRef<string | number | null>(null);
 
   // Initialize form with useForm
   const form = useForm<z.infer<typeof receiveParcelSchema>>({
     resolver: zodResolver(receiveParcelSchema),
     defaultValues: {
       receiverPhone: "",
-    
     }
   });
+
+  // Handle loading state with toast
+  useEffect(() => {
+    if (isLoading) {
+      toastIdRef.current = toast.loading("Loading parcels...");
+    } else if (toastIdRef.current) {
+      toast.dismiss(toastIdRef.current);
+      toastIdRef.current = null;
+    }
+
+    return () => {
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current);
+      }
+    };
+  }, [isLoading]);
+
+  // Handle errors
+  useEffect(() => {
+    if (error) {
+      // Dismiss loading toast if it exists
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current);
+        toastIdRef.current = null;
+      }
+      toast.error("Error loading parcel data");
+    }
+  }, [error]);
 
   // Open modal with parcel data and reset form
   const handleReceiveParcelClick = (parcel: IParcelBase) => {
     setSelectedParcel(parcel);
-
-    // Reset form with parcel data (admin can update sender-provided info)
     form.reset({
       receiverPhone: "",
     });
-
     setIsDialogOpen(true);
   };
 
-  // Handle confirm pick
+  // Handle confirm receive
   const onSubmit = async (values: z.infer<typeof receiveParcelSchema>) => {
     if (!selectedParcel) return;
-      
+
     try {
-      await receiveParcel(
-        // trackingNumber: selectedParcel.trackingId || selectedParcel._id as string,
-      // mutationPayload
-      {trackingId:selectedParcel.trackingId as string, receiverPhone:values.receiverPhone as string}
-      
-      ).unwrap()
+      await receiveParcel({
+        trackingId: selectedParcel.trackingId as string,
+        receiverPhone: values.receiverPhone
+      }).unwrap();
 
       toast.success("Parcel received successfully!");
       setIsDialogOpen(false);
       form.reset();
     } catch (error: any) {
-      toast.error(error.data?.message || "Failed to pick parcel");
+      toast.error(error.data?.message || "Failed to receive parcel");
     }
   };
-
-  useEffect(() => {
-    if (isLoading) toast.loading("Loading parcels...");
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (error) toast.error("Error loading parcel data");
-  }, [error]);
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Requested Parcels</h1>
-
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-300 p-2 text-left">Tracking ID</th>
-            <th className="border border-gray-300 p-2 text-left">Receiver</th>
-            <th className="border border-gray-300 p-2 text-left">Phone</th>
-            <th className="border border-gray-300 p-2 text-left">Weight</th>
-            <th className="border border-gray-300 p-2 text-left">Current Status</th>
-            <th className="border border-gray-300 p-2 text-left">Destination</th>
-            <th className="border border-gray-300 p-2 text-left">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.data?.map((parcel) => (
-            <tr key={parcel._id}>
-              <td className="border border-gray-300 p-2">{parcel.trackingId}</td>
-              <td className="border border-gray-300 p-2">{parcel.receiverName}</td>
-              <td className="border border-gray-300 p-2">***********</td>
-              <td className="border border-gray-300 p-2">{parcel.weight} kg</td>
-              <td className="border border-gray-300 p-2">{parcel.currentStatus}</td>
-              <td className="border border-gray-300 p-2">
-                {parcel.destinationAddress.address}, {parcel.destinationAddress.district}
-              </td>
-              <td className="border border-gray-300 p-2">
-                <Button onClick={() => handleReceiveParcelClick(parcel)}>Receive</Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {data?.data?.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No requested parcels found.
+      
+      {isLoading && (
+        <div className="text-center py-8">
+          Loading parcels...
         </div>
       )}
+      
+      {!isLoading && data && (
+        <>
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 p-2 text-left">Tracking ID</th>
+                <th className="border border-gray-300 p-2 text-left">Receiver</th>
+                <th className="border border-gray-300 p-2 text-left">Phone</th>
+                <th className="border border-gray-300 p-2 text-left">Weight</th>
+                <th className="border border-gray-300 p-2 text-left">Current Status</th>
+                <th className="border border-gray-300 p-2 text-left">Destination</th>
+                <th className="border border-gray-300 p-2 text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.data?.map((parcel) => (
+                <tr key={parcel._id}>
+                  <td className="border border-gray-300 p-2">{parcel.trackingId}</td>
+                  <td className="border border-gray-300 p-2">{parcel.receiverName}</td>
+                  <td className="border border-gray-300 p-2">***********</td>
+                  <td className="border border-gray-300 p-2">{parcel.weight} kg</td>
+                  <td className="border border-gray-300 p-2">{parcel.currentStatus}</td>
+                  <td className="border border-gray-300 p-2">
+                    {parcel.destinationAddress.address}, {parcel.destinationAddress.district}
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    <Button onClick={() => handleReceiveParcelClick(parcel)}>Receive</Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      {/* Pick Parcel Dialog */}
+          {data.data?.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No requested parcels found.
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Receive Parcel Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Confirm Parcel Pickup</DialogTitle>
+            <DialogTitle>Confirm Parcel Receive</DialogTitle>
             <DialogDescription>
-              Review and update parcel details before confirming pickup. You can modify sender-provided information.
+              Enter the receiver's phone number to confirm the parcel has been received.
             </DialogDescription>
           </DialogHeader>
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Sender-provided information (editable by admin) */}
-            
               <FormField
                 control={form.control}
                 name="receiverPhone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Enter your phone number</FormLabel>
+                    <FormLabel>Enter receiver's phone number</FormLabel>
                     <FormControl>
-                      <Input{...field}/>
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Confirm Receive
+              <Button type="submit" className="w-full" disabled={isReceiving}>
+                {isReceiving ? "Receiving..." : "Confirm Receive"}
               </Button>
             </form>
           </Form>

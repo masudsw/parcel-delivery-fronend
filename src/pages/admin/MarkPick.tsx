@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,6 +36,7 @@ const pickParcelSchema = z.object({
   shippingFee: z.number().min(0, "Shipping fee cannot be negative"),
 });
 
+
 export default function MarkPick() {
   const { data, isLoading, error } = useGetAllParcelsQuery({
     currentStatus: currentStatus.REQUESTED
@@ -44,6 +45,17 @@ export default function MarkPick() {
   const [pickParcel] = usePickParcelMutation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedParcel, setSelectedParcel] = useState<IParcelBase | null>(null);
+  const toastIdRef = useRef<string | number | null>(null);
+  useEffect(() => {
+    if (isLoading) {
+      // Store the toast ID so we can dismiss it later
+      toastIdRef.current = toast.loading("Loading parcels...");
+    } else if (toastIdRef.current) {
+      // Dismiss the loading toast when loading is complete
+      toast.dismiss(toastIdRef.current);
+      toastIdRef.current = null;
+    }
+  }, [isLoading]);
 
   // Initialize form with useForm
   const form = useForm<z.infer<typeof pickParcelSchema>>({

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { currentStatus } from "@/constants/parcelStatus";
 import { useGetAllParcelsQuery, useMarkInTransitMutation } from "@/redux/features/parcel/parcel.api";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { IParcelBase } from "@/types";
 
 
@@ -14,9 +14,17 @@ export default function MarkTransit() {
   });
   
   const [transitParcel] = useMarkInTransitMutation();
+   const toastIdRef = useRef<string | number | null>(null);
 
   useEffect(() => {
-    if (isLoading) toast.loading("Loading parcels...");
+    if (isLoading) {
+      // Store the toast ID so we can dismiss it later
+      toastIdRef.current = toast.loading("Loading parcels...");
+    } else if (toastIdRef.current) {
+      // Dismiss the loading toast when loading is complete
+      toast.dismiss(toastIdRef.current);
+      toastIdRef.current = null;
+    }
   }, [isLoading]);
 
   useEffect(() => {

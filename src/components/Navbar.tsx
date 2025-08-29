@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Link } from "react-router-dom"
+import { href, Link } from "react-router-dom"
 import { ModeToggle } from "./ModeToggle"
 import { authApi, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api"
 import { useAppDispatch } from "@/hooks/hook"
@@ -21,6 +21,7 @@ import { useAppDispatch } from "@/hooks/hook"
 const navigationLinks = [
   { href: "/", label: "Home", active: true },
   { href: "/about", label: "About Us" },
+  {href:"/dashboard" ,label:"Dashboard"},
   { href: "/track-parcel", label: "Track Parcel" },
 ]
 

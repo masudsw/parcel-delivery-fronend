@@ -17,7 +17,6 @@ export default function ViewParcels() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("createdAt"); // default sort
   const [limit, setLimit] = useState(5);
-  // const [page, setPage] = useState(1);
   const [page, setPage] = useState(1);
 
   const { data, isLoading, error } = useGetAllParcelsQuery({

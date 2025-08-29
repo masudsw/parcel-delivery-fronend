@@ -39,11 +39,13 @@ export const parcelApi = baseApi.injectEndpoints({
         }),
 
         // Mark parcel as received
-        markReceived: builder.mutation<IStatusUpdateResponse, { trackingId: string, receiverPhone: string }>({
+        
+        receiveParcel: builder.mutation<IStatusUpdateResponse, { trackingId: string, receiverPhone: string }>({
             query: ({ trackingId, receiverPhone }) => ({
                 url: `/parcel/${trackingId}/status/mark-received`,
+
                 method: "PATCH",
-                body: { receiverPhone }
+                data: { receiverPhone }
             }),
             invalidatesTags: ["PARCEL"],
         }),
@@ -107,7 +109,7 @@ export const {
     useCreateParcelMutation,
     usePickParcelMutation,
     useMarkInTransitMutation,
-    useMarkReceivedMutation,
+    useReceiveParcelMutation,
     useGetParcelStatusQuery,
     useLazyGetParcelStatusQuery,
     useGetAllParcelsQuery,

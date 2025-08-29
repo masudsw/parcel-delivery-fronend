@@ -25,13 +25,7 @@ export const senderSidebarItems: ISidebarItem[] = [
                 url: "/sender/cancel-parcel",
                 component: CancelParcel
             },
-            {
-                title: "Receive Parcel",
-                url: "/sender/receive-parcel",
-                component: ReceiveParcel
-            },
-
-
+            
         ],
     },
 ]
