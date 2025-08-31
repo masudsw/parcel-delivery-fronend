@@ -20,7 +20,9 @@ const loginSchema = z.object({
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/\d/, "Password must contain at least one number")
-    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one special character"),
+     .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, "Password must contain at least one special character"),
+    
+    // .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one special character"),
   userType: z.enum(["SENDER", "RECEIVER","ADMIN"]).refine((val) => val === "SENDER" || val === "RECEIVER"|| val==="ADMIN", {
     message: "Please select a user type",
   })
@@ -53,6 +55,7 @@ export function LoginForm({
       console.log(res);
       toast.success("Login successfully")
        navigate("/dashboard")
+        /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       toast.error(error.data.message || "Login failed");
     }

@@ -91,6 +91,7 @@ export default function ReceiveParcel() {
       toast.success("Parcel received successfully!");
       setIsDialogOpen(false);
       form.reset();
+       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       toast.error(error.data?.message || "Failed to receive parcel");
     }

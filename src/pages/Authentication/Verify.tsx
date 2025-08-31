@@ -1,6 +1,5 @@
 import {
     Card,
-    CardAction,
     CardContent,
     CardDescription,
     CardFooter,
@@ -36,8 +35,8 @@ const formSchema = z.object({
 export function Verify() {
     const location = useLocation()
     const navagate = useNavigate();
-    const [sendOtp, { error: sendOtpError }] = useSendOtpMutation()
-    const [verifyOtp, { error: verifyOtpError }] = useVerifyOtpMutation();
+    const [sendOtp] = useSendOtpMutation()
+    const [verifyOtp] = useVerifyOtpMutation();
 
 
     const [timer, setTimer] = useState(5);
@@ -51,6 +50,7 @@ export function Verify() {
         },
     })
     // Function to extract error message from RTK-Query error
+     /* eslint-disable @typescript-eslint/no-explicit-any */
     const getErrorMessage = (error: any) => {
         if (!error) return null;
         

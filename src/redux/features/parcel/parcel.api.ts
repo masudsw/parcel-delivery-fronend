@@ -1,9 +1,6 @@
 import { baseApi } from "@/redux/baseApi";
 import type { IResponse } from "@/types";
-import type {   IGetAllParcelsParams, IGetAllParcelsResponse, IPaginationMeta, IParcelBase, IPickupData, ISenderParcel, IStatusLog, IStatusUpdateResponse } from "@/types/parcel.types";
-
-
-
+import type { IGetAllParcelsParams, IGetAllParcelsResponse, IParcelBase, IPickupData, ISenderParcel, IStatusLog, IStatusUpdateResponse } from "@/types/parcel.types";
 
 export const parcelApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -15,6 +12,14 @@ export const parcelApi = baseApi.injectEndpoints({
                 data: parcelInfo,
             }),
             invalidatesTags: ["PARCEL"],
+        }),
+        updateParcels: builder.mutation<IResponse<ISenderParcel[]>, { id: string; payload: Partial<ISenderParcel> }>({
+            query: ({id,payload}) => ({
+                url: `/parcel/${id}`,
+                method: "patch",
+                data:payload
+            }),
+           invalidatesTags: ["PARCEL"],
         }),
 
         // Mark parcel as picked up
@@ -39,11 +44,10 @@ export const parcelApi = baseApi.injectEndpoints({
         }),
 
         // Mark parcel as received
-        
+
         receiveParcel: builder.mutation<IStatusUpdateResponse, { trackingId: string, receiverPhone: string }>({
             query: ({ trackingId, receiverPhone }) => ({
                 url: `/parcel/${trackingId}/status/mark-received`,
-
                 method: "PATCH",
                 data: { receiverPhone }
             }),
@@ -59,7 +63,7 @@ export const parcelApi = baseApi.injectEndpoints({
             providesTags: ["PARCEL"],
         }),
 
-        // Get all parcels with filtering and pagination
+        // Get all parcels with filtering and pagination   /my-parcel
         getAllParcels: builder.query<IGetAllParcelsResponse, IGetAllParcelsParams>({
             query: (params) => ({
                 url: '/parcel',
@@ -68,6 +72,7 @@ export const parcelApi = baseApi.injectEndpoints({
             }),
             providesTags: ["PARCEL"],
         }),
+
         getParcelToReceive: builder.query<IResponse<IParcelBase[]>, null>({
             query: () => ({
                 url: '/parcel/ready-to-receive',
@@ -88,7 +93,7 @@ export const parcelApi = baseApi.injectEndpoints({
         // Get current user's parcels
         getMyParcels: builder.query<IResponse<ISenderParcel[]>, void>({
             query: () => ({
-                url: "/parcel/myparcel",
+                url: "/parcel/my-parcel",
                 method: "GET",
             }),
             providesTags: ["PARCEL"],
@@ -116,5 +121,6 @@ export const {
     useCancelParcelMutation,
     useGetMyParcelsQuery,
     useUserInfoQuery,
-    useGetParcelToReceiveQuery
+    useGetParcelToReceiveQuery,
+    useUpdateParcelsMutation
 } = parcelApi;

@@ -26,7 +26,7 @@ const axiosBaseQuery = ({ baseUrl } = { baseUrl: '' }): BaseQueryFn<
         });
         return { data: result.data };
     } catch (axiosError) {
-        let err = axiosError as AxiosError;
+        const err = axiosError as AxiosError;
         console.error('Full axios error:',err.response?.data)
         return {
             error: {

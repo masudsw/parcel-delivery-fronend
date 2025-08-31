@@ -16,10 +16,12 @@ import { generateRoutes } from "@/utils/generateRoutes";
 import { senderSidebarItems } from "./senderSidebarItems";
 import { adminSidebarItems } from "./adminSidebarItems";
 import { receiverSidebarItems } from "./receiverSidebarItems";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 
 export const router=createBrowserRouter([
     {
+        errorElement: <NotFoundPage />,
         Component:App,
         path:"/",
         children:[

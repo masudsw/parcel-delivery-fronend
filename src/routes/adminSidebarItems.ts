@@ -1,6 +1,7 @@
 import MarkPick from "@/pages/admin/MarkPick";
 import MarkTransit from "@/pages/admin/MarkTransit";
-import ViewParcels from "@/pages/admin/viewParcels";
+import ViewParcels from "@/pages/admin/ViewParcels";
+
 
 import type { ISidebarItem } from "@/types";
 

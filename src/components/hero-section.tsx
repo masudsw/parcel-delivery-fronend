@@ -1,8 +1,4 @@
-
-import img from "../assets/images/parcel-delivery.png" 
 import { Button } from '@/components/ui/button'
-
-import { HeroHeader } from '@/components/header'
 import { Link } from 'react-router-dom'
 import { ProgressiveBlur } from './ui/progressive-blur'
 import { InfiniteSlider } from './ui/infinite-slider'

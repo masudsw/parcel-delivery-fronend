@@ -1,11 +1,9 @@
 import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -16,32 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useCreateParcelMutation } from "@/redux/features/parcel/parcel.api";
+import { parcelSchema } from "@/ZodShema/parcelShema";
+import type z from "zod";
 
 // Define the form schema
-const parcelSchema = z.object({
-  receiverName: z.string().min(2, "Receiver name must be at least 2 characters"),
-  receiverPhone: z.string()
-    .min(11, "Phone number must be at least 11 digits")
-    .max(11, "Phone number must be exactly 11 digits")
-    .regex(/^(?:\+88|01)\d{9}$/, "Please enter a valid Bangladesh phone number"),
-  originAddress: z.object({
-    address: z.string().min(5, "Please enter a valid address"),
-    district: z.string().min(2, "Please enter a valid district"),
-    country: z.string().min(2, "Please enter a valid country"),
-  }),
-  destinationAddress: z.object({
-    address: z.string().min(5, "Please enter a valid address"),
-    district: z.string().min(2, "Please enter a valid district"),
-    country: z.string().min(2, "Please enter a valid country"),
-  }),
-  dimentions: z.object({
-    height: z.number().min(0.1, "Height must be greater than 0"),
-    width: z.number().min(0.1, "Width must be greater than 0"),
-    length: z.number().min(0.1, "Length must be greater than 0"),
-  }),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  weight: z.number().min(0.1, "Weight must be greater than 0"),
-});
+
 
 export function CreateParcel({
   className,
@@ -71,14 +48,15 @@ export function CreateParcel({
       weight: 0,
     },
   });
-  const [creatNewParcel] = useCreateParcelMutation();
+  const [creatNewParcel,error] = useCreateParcelMutation();
   async function onSubmit(data: z.infer<typeof parcelSchema>) {
 
     try {
 
-      await creatNewParcel(data);
+      await creatNewParcel(data).unwrap();
       toast.success("Parcel created successfully!");
       form.reset();
+       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       console.error("Error creating parcel:", error);
       // Check if it's a validation error or API error

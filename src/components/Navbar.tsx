@@ -12,28 +12,36 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { href, Link } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { ModeToggle } from "./ModeToggle"
 import { authApi, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api"
 import { useAppDispatch } from "@/hooks/hook"
+import { toast } from "sonner"
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
   { href: "/", label: "Home", active: true },
   { href: "/about", label: "About Us" },
-  {href:"/dashboard" ,label:"Dashboard"},
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/track-parcel", label: "Track Parcel" },
 ]
 
 export default function Navbar() {
   const { data } = useUserInfoQuery(undefined)
   console.log(data?.data?.email)
-  const [logout]=useLogoutMutation();
-  const dispatch=useAppDispatch();
-  const handleLogout=async()=>{
-    await logout(undefined)
-    dispatch(authApi.util.resetApiState())
-    
+  const [logout] = useLogoutMutation();
+  const dispatch = useAppDispatch();
+  const handleLogout = async () => {
+    try {
+      await logout(undefined)
+      dispatch(authApi.util.resetApiState())
+      toast.success("You have logged out successfully...")
+
+    } catch (error) {
+      toast.error("Error in logout")
+    }
+
+
   }
   return (
     <header className="border-b ">
@@ -120,10 +128,10 @@ export default function Navbar() {
           </Button> */}
           {
             data?.data?.email && (
-              <Button 
-              onClick={handleLogout}
-              variant="outline" 
-              className="text-sm">
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="text-sm">
                 Logout
               </Button>
             )

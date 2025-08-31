@@ -18,7 +18,8 @@ const registerSchema = z.object({
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/\d/, "Password must contain at least one number")
-    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one special character"),
+    // .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one special character"),
+     .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, "Password must contain at least one special character"),
   phone: z.string()
     .min(11, "Phone number must be at least 11 digits")
     .max(11, "Phone number must be exactly 11 digits")
@@ -59,6 +60,7 @@ export function RegisterForm({
     try {
       await register(userInfo).unwrap();
       navigate("/verify", { state: data.email })
+      /* eslint-disable @typescript-eslint/no-explicit-any */
 
     } catch (error: any) {
       console.log("error", error.data)

@@ -1,4 +1,5 @@
 import type { TCurrentStatus } from "@/constants/parcelStatus";
+import type { string } from "zod";
 export interface IPaginationMeta {
   page: number;
   limit: number;
@@ -59,6 +60,7 @@ export interface IAdminParcel extends IParcelBase {
 
 export interface ISenderParcel {
   // Only the fields sender is allowed to provide
+  _id?:string;
   receiverName: string;
   receiverPhone: string;
   originAddress: IAddressFormat;

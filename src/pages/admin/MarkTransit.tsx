@@ -41,6 +41,7 @@ export default function MarkTransit() {
       // Assuming your API expects just the tracking ID
       await transitParcel(parcel.trackingId).unwrap();
       toast.success("Parcel sent for transportation!");
+       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       toast.error(error.data?.message || "Failed to send for transportation");
     }

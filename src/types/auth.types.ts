@@ -29,6 +29,7 @@ export interface IUser {
   isBlocked: boolean;
   isVarified: boolean;  // Note: typo "isVarified" matches your response
   address: string;
+   /* eslint-disable @typescript-eslint/no-explicit-any */
   auths: any[];
   createdAt: string;
   updatedAt: string;

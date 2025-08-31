@@ -44,6 +44,7 @@ export default function TrackParcel({
       setStatusLogs(res.data)
       toast.success("Parcel status retrieved successfully");
       console.log(statusLogs)
+       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       setStatusLogs([]);
       toast.error(error.data?.message || "Failed to retrieve parcel status");

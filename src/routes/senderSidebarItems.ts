@@ -1,8 +1,8 @@
-import ReceiveParcel from "@/pages/receiver/ReceiveParcel";
 import CancelParcel from "@/pages/sender/CancelParcel";
 import { CreateParcel } from "@/pages/sender/CreateParcel";
+import MyParcels from "@/pages/sender/MyParcels";
 
-import UndateParcel from "@/pages/sender/UndateParcel";
+
 import type { ISidebarItem } from "@/types";
 
 export const senderSidebarItems: ISidebarItem[] = [
@@ -16,14 +16,9 @@ export const senderSidebarItems: ISidebarItem[] = [
                 component: CreateParcel
             },
             {
-                title: "Update Parcel",
-                url: "/sender/update-parcel",
-                component: UndateParcel
-            },
-            {
-                title: "Cancel Parcel",
-                url: "/sender/cancel-parcel",
-                component: CancelParcel
+                title: "My Parcel",
+                url: "/sender/my-parcel",
+                component: MyParcels
             },
             
         ],
