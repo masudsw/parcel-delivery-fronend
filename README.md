@@ -60,4 +60,4 @@ cd parcel-delivery-fronend
 Configure your `.env` file with the following variable, which should point to the base URL of your deployed backend API.
 
 ```bash
-VITE_BACKEND_API_BASE_URL=[https://parcel-delevery-backend.vercel.app/api/v1](https://parcel-delevery-backend.vercel.app/api/v1)
+VITE_BASE_URL=https://parcel-delevery-backend.vercel.app/api/v1
