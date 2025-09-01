@@ -36,15 +36,17 @@ The **Parcel Delivery Dashboard** is the official front-end for the Parcel Deliv
 ### Installation
 
 1.  **Clone the repository**:
-    ```bash
-    git clone [https://github.com/masudsw/parcel-delivery-fronend.git](https://github.com/masudsw/parcel-delivery-fronend.git)
-    cd parcel-delivery-fronend
-    ```
-2.  **Install dependencies**:
+  
+```bash
+git clone https://github.com/masudsw/parcel-delivery-fronend.git
+cd parcel-delivery-fronend
+```
+    
+3.  **Install dependencies**:
     ```bash
     npm install
     ```
-3.  **Create your environment file**:
+4.  **Create your environment file**:
     ```bash
     cp .env.example .env
     ```
